@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AI-Powered Medicine Reminder and Health Tracking System">
+    <meta name="theme-color" content="#667eea">
+    
+    <title>Medicine Reminder - Your AI Health Assistant</title>
+    
+    <link rel="manifest" href="manifest.json">
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<body>
+    <!-- ==================== LOADING PAGE ==================== -->
+    <div class="loading-page" id="loadingPage">
+        <div class="loading-particles">
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+        </div>
+        
+        <div class="loading-content">
+            <div class="loading-logo">💊</div>
+            <h1 class="loading-title">Medicine Reminder</h1>
+            <p class="loading-subtitle">Your AI Health Companion</p>
+            
+            <div class="loading-spinner-container">
+                <div class="loading-ring"></div>
+                <div class="loading-ring"></div>
+                <div class="loading-ring"></div>
+            </div>
+            
+            <div class="loading-pills">
+                <div class="loading-pill"></div>
+                <div class="loading-pill"></div>
+                <div class="loading-pill"></div>
+                <div class="loading-pill"></div>
+                <div class="loading-pill"></div>
+            </div>
+            
+            <div class="loading-progress">
+                <div class="loading-progress-bar"></div>
+            </div>
+            
+            <p class="loading-text">
+                <span class="loading-dots">Loading your health data</span>
+            </p>
+        </div>
+    </div>
+    <header class="app-header">
+        <div class="header-content">
+            <div class="logo">
+                <span class="logo-icon">💊</span>
+                <div>
+                    <h1>Medicine Reminder</h1>
+                    <p class="tagline">Your AI Health Companion</p>
+                </div>
+            </div>
+            
+            <div class="header-stats">
+                <div class="stat-badge">
+                    <span>💊</span>
+                    <div>
+                        <small>Active</small>
+                        <strong id="totalMeds">0</strong>
+                    </div>
+                </div>
+                <div class="stat-badge">
+                    <span>📅</span>
+                    <div>
+                        <small>Today</small>
+                        <strong id="todayDoses">0</strong>
+                    </div>
+                </div>
+                <div class="stat-badge">
+                    <span>✅</span>
+                    <div>
+                        <small>Adherence</small>
+                        <strong id="adherenceRate">0%</strong>
+                    </div>
+                </div>
+                <div class="stat-badge">
+                    <span>🔥</span>
+                    <div>
+                        <small>Streak</small>
+                        <strong id="streak">0</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ==================== NAVIGATION TABS ==================== -->
+    <nav class="nav-tabs">
+        <div class="nav-container">
+            <button class="nav-btn active" data-section="dashboard">
+                <span>📊</span> Dashboard
+            </button>
+            <button class="nav-btn" data-section="medicines">
+                <span>💊</span> Medicines
+            </button>
+            <button class="nav-btn" data-section="schedule">
+                <span>📅</span> Schedule
+            </button>
+            <button class="nav-btn" data-section="analytics">
+                <span>📈</span> Analytics
+            </button>
+            <button class="nav-btn" data-section="achievements">
+                <span>🏆</span> Achievements
+            </button>
+            <button class="nav-btn" data-section="emergency">
+                <span>🚨</span> Emergency
+            </button>
+            <button class="nav-btn" data-section="settings">
+                <span>⚙️</span> Settings
+            </button>
+        </div>
+    </nav>
+
+    <!-- ==================== MAIN CONTAINER ==================== -->
+    <div class="container">
+        
+        <!-- DASHBOARD SECTION -->
+        <section id="dashboard" class="section active">
+            <div class="welcome-card card">
+                <h2>Welcome Back! 👋</h2>
+                <p id="welcomeMessage">Let's manage your health together today.</p>
+                
+                <div class="quick-actions">
+                    <button class="quick-action-btn" onclick="app.showSection('medicines')">
+                        <span class="icon">➕</span>
+                        <span class="label">Add Medicine</span>
+                    </button>
+                    <button class="quick-action-btn" onclick="app.markAllTodayTaken()">
+                        <span class="icon">✓</span>
+                        <span class="label">Mark All Taken</span>
+                    </button>
+                    <button class="quick-action-btn" onclick="app.showSection('analytics')">
+                        <span class="icon">📊</span>
+                        <span class="label">View Reports</span>
+                    </button>
+                    <button class="quick-action-btn" onclick="app.shareProgress()">
+                        <span class="icon">📤</span>
+                        <span class="label">Share Progress</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>📋 Today's Schedule</h2>
+                <div id="todaySchedule" class="schedule-list"></div>
+            </div>
+
+            <div class="card">
+                <h2>⏰ Upcoming Reminders</h2>
+                <div id="upcomingReminders" class="reminders-list"></div>
+            </div>
+
+            <div class="card">
+                <h2>📊 Quick Stats</h2>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <span class="stat-icon">🎯</span>
+                        <span class="stat-value" id="completionToday">0%</span>
+                        <span class="stat-label">Today's Completion</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-icon">📦</span>
+                        <span class="stat-value" id="totalDosesTaken">0</span>
+                        <span class="stat-label">Total Doses Taken</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-icon">⏱️</span>
+                        <span class="stat-value" id="avgTimeTaken">0h</span>
+                        <span class="stat-label">Avg Time Deviation</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MEDICINES SECTION -->
+        <section id="medicines" class="section">
+            <div class="card">
+                <h2>💊 Add New Medicine</h2>
+                <form id="medicineForm" class="medicine-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="medName">Medicine Name *</label>
+                            <input type="text" id="medName" required placeholder="e.g., Aspirin, Vitamin D">
+                        </div>
+                        <div class="form-group">
+                            <label for="medDosage">Dosage *</label>
+                            <input type="text" id="medDosage" required placeholder="e.g., 500mg, 2 tablets">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="medType">Medicine Type</label>
+                            <select id="medType">
+                                <option value="tablet">Tablet</option>
+                                <option value="capsule">Capsule</option>
+                                <option value="syrup">Syrup</option>
+                                <option value="injection">Injection</option>
+                                <option value="drops">Drops</option>
+                                <option value="inhaler">Inhaler</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="medFrequency">Frequency *</label>
+                            <select id="medFrequency" required>
+                                <option value="once">Once Daily</option>
+                                <option value="twice">Twice Daily</option>
+                                <option value="thrice">Three Times Daily</option>
+                                <option value="four">Four Times Daily</option>
+                                <option value="custom">Custom Schedule</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group" id="timesContainer">
+                        <label>Time(s) *</label>
+                        <div class="time-inputs">
+                            <input type="time" class="time-input" id="medTime1" required>
+                            <input type="time" class="time-input" id="medTime2" style="display:none">
+                            <input type="time" class="time-input" id="medTime3" style="display:none">
+                            <input type="time" class="time-input" id="medTime4" style="display:none">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="medStartDate">Start Date *</label>
+                            <input type="date" id="medStartDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="medDuration">Duration (days)</label>
+                            <input type="number" id="medDuration" placeholder="Leave empty for ongoing" min="1">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="medInstructions">Instructions</label>
+                        <textarea id="medInstructions" rows="3" placeholder="e.g., Take after meals, with water"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="medCritical">
+                            <span>Mark as critical (high priority)</span>
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        <span>➕</span> Add Medicine
+                    </button>
+                </form>
+            </div>
+
+            <div class="card">
+                <h2>📦 My Medicines</h2>
+                <div class="filter-buttons">
+                    <button class="filter-btn active" data-filter="all">All</button>
+                    <button class="filter-btn" data-filter="active">Active</button>
+                    <button class="filter-btn" data-filter="completed">Completed</button>
+                    <button class="filter-btn" data-filter="critical">Critical</button>
+                </div>
+                <div id="medicineList" class="medicine-list"></div>
+            </div>
+        </section>
+
+        <!-- SCHEDULE SECTION -->
+        <section id="schedule" class="section">
+            <div class="card">
+                <h2>📅 Weekly Schedule</h2>
+                <div class="week-navigator">
+                    <button class="btn-nav" onclick="app.changeWeek(-1)">← Previous</button>
+                    <span id="currentWeek">Current Week</span>
+                    <button class="btn-nav" onclick="app.changeWeek(1)">Next →</button>
+                </div>
+                <div id="scheduleView" class="schedule-grid"></div>
+            </div>
+
+            <div class="card">
+                <h2>📊 Schedule Summary</h2>
+                <div id="scheduleSummary" class="summary-grid"></div>
+            </div>
+        </section>
+
+        <!-- ANALYTICS SECTION -->
+        <section id="analytics" class="section">
+            <div class="card">
+                <h2>📈 Adherence Analytics</h2>
+                <div class="chart-container">
+                    <canvas id="adherenceChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>📊 Weekly Overview</h2>
+                <div class="chart-container">
+                    <canvas id="weeklyChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>🎯 Medicine-wise Performance</h2>
+                <div class="chart-container">
+                    <canvas id="medicineChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>📄 Generate Report</h2>
+                <div class="report-options">
+                    <select id="reportType">
+                        <option value="monthly">Monthly Report</option>
+                        <option value="weekly">Weekly Report</option>
+                        <option value="custom">Custom Date Range</option>
+                    </select>
+                    <button class="btn btn-primary" onclick="app.generateReport()">
+                        <span>📥</span> Download PDF Report
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ACHIEVEMENTS SECTION -->
+        <section id="achievements" class="section">
+            <div class="card">
+                <h2>🏆 Your Achievements</h2>
+                <div class="points-display">
+                    <span class="points-icon">⭐</span>
+                    <span class="points-value" id="totalPoints">0</span>
+                    <span class="points-label">Total Points</span>
+                </div>
+                <div id="achievementsList" class="achievement-grid"></div>
+            </div>
+
+            <div class="card">
+                <h2>🎯 Current Goals</h2>
+                <div id="currentGoals" class="goals-list"></div>
+            </div>
+        </section>
+
+        <!-- EMERGENCY SECTION -->
+        <section id="emergency" class="section">
+            <div class="card emergency-card">
+                <h2>🚨 Emergency Contacts</h2>
+                <div class="emergency-form">
+                    <div class="form-group">
+                        <label for="emergencyName">Contact Name</label>
+                        <input type="text" id="emergencyName" placeholder="e.g., Dr. Smith, Family Member">
+                    </div>
+                    <div class="form-group">
+                        <label for="emergencyPhone">Phone Number</label>
+                        <input type="tel" id="emergencyPhone" placeholder="+91 8790XXXXXX">
+                    </div>
+                    <div class="form-group">
+                        <label for="emergencyRelation">Relation</label>
+                        <select id="emergencyRelation">
+                            <option value="doctor">Doctor</option>
+                            <option value="family">Family Member</option>
+                            <option value="friend">Friend</option>
+                            <option value="caregiver">Caregiver</option>
+                            <option value="pharmacy">Pharmacy</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-danger" onclick="app.saveEmergencyContact()">
+                        <span>💾</span> Save Contact
+                    </button>
+                </div>
+                <div id="emergencyList" class="emergency-list"></div>
+            </div>
+
+            <div class="card">
+                <h2>📋 Medical Information</h2>
+                <div class="form-group">
+                    <label for="bloodType">Blood Type</label>
+                    <select id="bloodType">
+                        <option value="">Select Blood Type</option>
+                        <option value="A+">A+</option>
+                        <option value="A-">A-</option>
+                        <option value="B+">B+</option>
+                        <option value="B-">B-</option>
+                        <option value="AB+">AB+</option>
+                        <option value="AB-">AB-</option>
+                        <option value="O+">O+</option>
+                        <option value="O-">O-</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="allergies">Allergies</label>
+                    <textarea id="allergies" rows="3" placeholder="List any drug allergies or food allergies"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="conditions">Medical Conditions</label>
+                    <textarea id="conditions" rows="3" placeholder="List chronic conditions, diseases, etc."></textarea>
+                </div>
+                <button class="btn btn-primary" onclick="app.saveMedicalInfo()">
+                    <span>💾</span> Save Information
+                </button>
+            </div>
+
+            <div class="card">
+                <h2>📍 Location Services</h2>
+                <p>Find nearby pharmacies and hospitals</p>
+                <button class="btn btn-info" onclick="app.findNearbyPharmacies()">
+                    <span>🏥</span> Find Nearby Pharmacies
+                </button>
+                <div id="locationResults" class="location-results"></div>
+            </div>
+        </section>
+
+        <!-- SETTINGS SECTION -->
+        <section id="settings" class="section">
+            <div class="card">
+                <h2>🔔 Notification Settings</h2>
+                <div class="setting-item">
+                    <label class="switch-label">
+                        <input type="checkbox" id="notificationEnabled" class="switch-input" checked>
+                        <span class="switch-slider"></span>
+                        <span class="switch-text">Enable Notifications</span>
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <label class="switch-label">
+                        <input type="checkbox" id="soundEnabled" class="switch-input" checked>
+                        <span class="switch-slider"></span>
+                        <span class="switch-text">Enable Sound</span>
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <label class="switch-label">
+                        <input type="checkbox" id="vibrationEnabled" class="switch-input" checked>
+                        <span class="switch-slider"></span>
+                        <span class="switch-text">Enable Vibration</span>
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label for="reminderAdvance">Reminder Advance Time (minutes)</label>
+                    <input type="number" id="reminderAdvance" value="15" min="0" max="60">
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>🎤 Voice Commands</h2>
+                <div class="setting-item">
+                    <label class="switch-label">
+                        <input type="checkbox" id="voiceEnabled" class="switch-input" checked>
+                        <span class="switch-slider"></span>
+                        <span class="switch-text">Enable Voice Commands</span>
+                    </label>
+                </div>
+                <div class="voice-commands-help">
+                    <h3>Available Commands:</h3>
+                    <ul>
+                        <li>"Show my medicines"</li>
+                        <li>"Add new medicine"</li>
+                        <li>"Mark [medicine name] as taken"</li>
+                        <li>"Show today's schedule"</li>
+                        <li>"What's my adherence rate?"</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>🎨 Appearance</h2>
+                <div class="form-group">
+                    <label for="themeSelect">Theme</label>
+                    <select id="themeSelect">
+                        <option value="light">Light</option>
+                        <option value="dark">Dark</option>
+                        <option value="auto">Auto (System)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>💾 Data Management</h2>
+                <div class="data-buttons">
+                    <button class="btn btn-primary" onclick="app.exportData()">
+                        <span>📤</span> Export Data (JSON)
+                    </button>
+                    <button class="btn btn-primary" onclick="app.importData()">
+                        <span>📥</span> Import Data
+                    </button>
+                    <button class="btn btn-danger" onclick="app.clearAllData()">
+                        <span>🗑️</span> Clear All Data
+                    </button>
+                </div>
+            </div>
+
+            <div class="card">
+                <button class="btn btn-primary" onclick="app.saveSettings()">
+                    <span>💾</span> Save All Settings
+                </button>
+            </div>
+            <div class="card">
+                <h2>👤 Account</h2>
+                <div class="form-group">
+                    <label>Logged in as:</label>
+                    <p id="userEmail" style="font-weight: 600; color: var(--primary); margin-bottom: 1rem;">
+                        Loading...
+                    </p>
+                </div>
+                <button class="btn btn-danger" onclick="app.logout()">
+                    <span>🚪</span> Logout
+                </button>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- ==================== FLOATING ACTION BUTTONS ==================== -->
+    <button class="fab voice-fab" id="voiceBtn" title="Voice Commands">
+        <span id="voiceIcon">🎤</span>
+    </button>
+
+    <button class="fab add-fab" onclick="app.showSection('medicines')" title="Add Medicine">
+        <span>➕</span>
+    </button>
+
+    <!-- ==================== MODAL FOR REMINDERS ==================== -->
+    <div id="reminderModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>💊 Medicine Reminder!</h2>
+            </div>
+            <div class="modal-body">
+                <p id="modalMessage"></p>
+                <div id="modalMedicineInfo"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-success" onclick="app.markTakenFromModal()">
+                    <span>✅</span> Mark as Taken
+                </button>
+                <button class="btn btn-warning" onclick="app.snoozeReminder()">
+                    <span>⏰</span> Snooze (10 min)
+                </button>
+                <button class="btn btn-danger" onclick="app.skipDose()">
+                    <span>❌</span> Skip This Dose
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== NOTIFICATION TOAST ==================== -->
+    <div id="toast" class="toast"></div>
+
+    <!-- ==================== LOADING OVERLAY ==================== -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-spinner"></div>
+        <p>Loading...</p>
+    </div>
+
+    <!-- ==================== JAVASCRIPT MODULES ==================== -->
+    <script src="js/utils.js"></script>
+    <script src="js/datastore.js"></script>
+    <script src="js/medicine.js"></script>
+    <script src="js/notifications.js"></script>
+    <script src="js/voice.js"></script>
+    <script src="js/analytics.js"></script>
+    <script src="js/achievements.js"></script>
+    <script src="js/app.js"></script>
+
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('service-worker.js')
+                .then(reg => console.log('Service Worker registered'))
+                .catch(err => console.log('Service Worker registration failed'));
+        }
+    </script>
+</body>
+</html>
